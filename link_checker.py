@@ -2,7 +2,7 @@
 """
 Nora — Spike's broken link checker bot
 Crawls spike.sh/blog, checks all links in parallel, and posts
-10 posts worth of broken links to Slack each week — rotating through
+5 posts worth of broken links to Slack each week — rotating through
 all affected posts gradually so fixes stay manageable.
 """
 
@@ -46,7 +46,7 @@ CRAWL_DELAY     = 0.1   # small delay between page fetches
 MAX_PAGES       = 600   # safety cap on pages crawled (blog had >300 in testing)
 MAX_LINKS       = 3000  # safety cap on links checked
 CHECK_WORKERS   = 20    # parallel workers for link checking
-BATCH_SIZE      = 10    # posts to report per week
+BATCH_SIZE      = 5     # posts to report per week
 RETRY_CODES     = {429, 503}
 
 # Statuses that genuinely mean a page is gone.
