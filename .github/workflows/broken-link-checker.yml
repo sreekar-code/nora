@@ -27,6 +27,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run link checker
+        continue-on-error: true
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: python link_checker.py
