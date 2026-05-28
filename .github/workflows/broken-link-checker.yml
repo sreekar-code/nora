@@ -1,0 +1,50 @@
+name: Broken Link Checker
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # Every Monday at 9:00 AM UTC
+  workflow_dispatch:        # Manual trigger from GitHub UI
+
+jobs:
+  check-links:
+    name: Check Spike Blog Links
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write       # needed to commit state.json back
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run link checker
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python link_checker.py
+
+      - name: Save state
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --cached --quiet || git commit -m "chore: update link checker state [skip ci]"
+          git push
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "## ✅ No new broken links this week" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🔴 Broken links found — check Slack for this week's batch" >> $GITHUB_STEP_SUMMARY
+          fi
